@@ -2,6 +2,7 @@
 #kubectl label nodes ip-10-10-100-239 controlplane=core1
 #kubectl label nodes ip-10-10-100-239 controlplane=core2
 #kubeadm token create --print-join-command --ttl 0
+#vCPU : 16 vCPU RAM 32GB
 ####### Default resource limit ########
 apiVersion: v1
 kind: LimitRange
@@ -10,11 +11,11 @@ metadata:
 spec:
   limits:
   - default:
-      cpu: "6000m"
-      memory: "6000Mi"
-    defaultRequest:
       cpu: "2000m"
       memory: "4000Mi"
+    defaultRequest:
+      cpu: "1000m"
+      memory: "1000Mi"
     type: Container
 
 ---
@@ -60,15 +61,15 @@ roleRef:
 apiVersion: v1
 kind: Pod
 metadata:
-   name: copy-1
+   name: copy
    labels:
       app: core
 spec:
   nodeSelector:
-    controlplane: "core1"
+    controlplane: "core"
   containers:
   - name: copy-1
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
+    image: tarunaws/psl:PSL_v0
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -76,126 +77,6 @@ spec:
         while true;
         do
         sleep 2;
-        python3 1_copy.py;
-        date;
-        done;
-        echo done;
-    resources:
-      requests:
-        cpu: "1000m"
-        memory: "1000Mi"
-      limits:
-        cpu: "2000m"
-        memory: "2000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: copy-2
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core1"
-  containers:
-  - name: copy-2
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-      - echo starting;
-        while true;
-        do
-        sleep 5;
-        python3 1_copy.py;
-        date;
-        done;
-        echo done;
-    resources:
-      requests:
-        cpu: "1000m"
-        memory: "1000Mi"
-      limits:
-        cpu: "2000m"
-        memory: "2000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-   name: copy-3
-   labels:
-      app: core
-spec:
-  nodeSelector:
-    controlplane: "core2"
-  containers:
-  - name: copy-3
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-      - echo starting;
-        while true;
-        do
-        sleep 2;
-        python3 1_copy.py;
-        date;
-        done;
-        echo done;
-    resources:
-      requests:
-        cpu: "1000m"
-        memory: "1000Mi"
-      limits:
-        cpu: "2000m"
-        memory: "2000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: copy-4
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core2"
-  containers:
-  - name: copy-4
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-      - echo starting;
-        while true;
-        do
-        sleep 5;
         python3 1_copy.py;
         date;
         done;
@@ -221,135 +102,15 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: distribute-1
+  name: distribute
   labels:
      app: core
 spec:
   nodeSelector:
-    controlplane: "core1"
+    controlplane: "core"
   containers:
   - name: distribute-1
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-      - echo starting;
-        while true;
-        do
-        sleep 2;
-        python3 2_distribute.py;
-        date;
-        done;
-        echo done;
-    resources:
-      requests:
-        cpu: "1000m"
-        memory: "1000Mi"
-      limits:
-        cpu: "2000m"
-        memory: "2000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: distribute-2
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core1"
-  containers:
-  - name: distribute-2
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-      - echo starting;
-        while true;
-        do
-        sleep 5;
-        python3 2_distribute.py;
-        date;
-        done;
-        echo done;
-    resources:
-      requests:
-        cpu: "1000m"
-        memory: "1000Mi"
-      limits:
-        cpu: "2000m"
-        memory: "2000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: distribute-3
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core2"
-  containers:
-  - name: distribute-3
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-      - echo starting;
-        while true;
-        do
-        sleep 5;
-        python3 2_distribute.py;
-        date;
-        done;
-        echo done;
-    resources:
-      requests:
-        cpu: "1000m"
-        memory: "1000Mi"
-      limits:
-        cpu: "2000m"
-        memory: "2000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: distribute-4
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core2"
-  containers:
-  - name: distribute-4
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
+    image: tarunaws/psl:PSL_v0
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -382,15 +143,15 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: splitter-1
+  name: splitter
   labels:
      app: core
 spec:
   nodeSelector:
-    controlplane: "core1"
+    controlplane: "core"
   containers:
   - name: splitter-1
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
+    image: tarunaws/psl:PSL_v0
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -404,128 +165,8 @@ spec:
       echo done;
     resources:
       requests:
-        cpu: "8000m"
-        memory: "20000Mi"
-      limits:
-        cpu: "10000m"
-        memory: "22000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: splitter-2
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core1"
-  containers:
-  - name: splitter-2
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-    - echo starting;
-      while true;
-      do
-      sleep 5;
-      python3 3_splitter.py;
-      date;
-      done;
-      echo done;
-    resources:
-      requests:
-        cpu: "8000m"
-        memory: "20000Mi"
-      limits:
-        cpu: "10000m"
-        memory: "22000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: splitter-3
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core2"
-  containers:
-  - name: splitter-3
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-    - echo starting;
-      while true;
-      do
-      sleep 2;
-      python3 3_splitter.py;
-      date;
-      done;
-      echo done;
-    resources:
-      requests:
-        cpu: "8000m"
-        memory: "20000Mi"
-      limits:
-        cpu: "10000m"
-        memory: "22000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: splitter-4
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core2"
-  containers:
-  - name: splitter-4
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-    - echo starting;
-      while true;
-      do
-      sleep 5;
-      python3 3_splitter.py;
-      date;
-      done;
-      echo done;
-    resources:
-      requests:
-        cpu: "8000m"
-        memory: "20000Mi"
+        cpu: "4000m"
+        memory: "6000Mi"
       limits:
         cpu: "10000m"
         memory: "22000Mi"
@@ -543,15 +184,15 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: transcoder-1
+  name: transcoder
   labels:
      app: core
 spec:
   nodeSelector:
-    controlplane: "core1"
+    controlplane: "core"
   containers:
   - name: transcoder-1
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
+    image: tarunaws/psl:PSL_v0
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -564,47 +205,8 @@ spec:
       echo done;
     resources:
       requests:
-        cpu: "4000m"
-        memory: "4000Mi"
-      limits:
-        cpu: "6000m"
-        memory: "6000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: transcoder-2
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core2"
-  containers:
-  - name: transcoder-2
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-    - echo starting;
-      while true;
-      do
-      python3 4_transcoder.py;
-      date;
-      done;
-      echo done;
-    resources:
-      requests:
-        cpu: "4000m"
-        memory: "4000Mi"
+        cpu: "2000m"
+        memory: "2000Mi"
       limits:
         cpu: "6000m"
         memory: "6000Mi"
@@ -622,15 +224,15 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: joiner-1
+  name: joiner
   labels:
      app: core
 spec:
   nodeSelector:
-    controlplane: "core1"
+    controlplane: "core"
   containers:
   - name: joiner-1
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
+    image: tarunaws/psl:PSL_v0
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -644,128 +246,8 @@ spec:
       echo done;
     resources:
       requests:
-        cpu: "8000m"
-        memory: "15000Mi"
-      limits:
-        cpu: "10000m"
-        memory: "18000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-        path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: joiner-2
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core1"
-  containers:
-  - name: joiner-2
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-    - echo starting;
-      while true;
-      do
-      sleep 5;
-      python3 5_joining.py;
-      date;
-      done;
-      echo done;
-    resources:
-      requests:
-        cpu: "8000m"
-        memory: "15000Mi"
-      limits:
-        cpu: "10000m"
-        memory: "18000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-        path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: joiner-3
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core2"
-  containers:
-  - name: joiner-3
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-    - echo starting;
-      while true;
-      do
-      sleep 2;
-      python3 5_joining.py;
-      date;
-      done;
-      echo done;
-    resources:
-      requests:
-        cpu: "8000m"
-        memory: "15000Mi"
-      limits:
-        cpu: "10000m"
-        memory: "18000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-        path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: joiner-4
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core2"
-  containers:
-  - name: joiner-4
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-    - echo starting;
-      while true;
-      do
-      sleep 2;
-      python3 5_joining.py;
-      date;
-      done;
-      echo done;
-    resources:
-      requests:
-        cpu: "8000m"
-        memory: "15000Mi"
+        cpu: "4000m"
+        memory: "6000Mi"
       limits:
         cpu: "10000m"
         memory: "18000Mi"
@@ -783,15 +265,15 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: packager-1
+  name: packager
   labels:
      app: core
 spec:
   nodeSelector:
-    controlplane: "core1"
+    controlplane: "core"
   containers:
   - name: packager-1
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
+    image: tarunaws/psl:PSL_v0
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -805,8 +287,8 @@ spec:
       echo done;
     resources:
       requests:
-        cpu: "10000m"
-        memory: "20000Mi"
+        cpu: "4000m"
+        memory: "12000Mi"
       limits:
         cpu: "15000m"
         memory: "30000Mi"
@@ -818,127 +300,6 @@ spec:
     hostPath:
       path: /mnt/transcodingapi
   serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: packager-2
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core1"
-  containers:
-  - name: packager-2
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-    - echo starting;
-      while true;
-      do
-      sleep 5;
-      python3 6_packager.py;
-      date;
-      done;
-      echo done;
-    resources:
-      requests:
-        cpu: "10000m"
-        memory: "20000Mi"
-      limits:
-        cpu: "15000m"
-        memory: "30000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: packager-3
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core2"
-  containers:
-  - name: packager-3
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-    - echo starting;
-      while true;
-      do
-      sleep 2;
-      python3 6_packager.py;
-      date;
-      done;
-      echo done;
-    resources:
-      requests:
-        cpu: "10000m"
-        memory: "20000Mi"
-      limits:
-        cpu: "15000m"
-        memory: "30000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: packager-4
-  labels:
-     app: core
-spec:
-  nodeSelector:
-    controlplane: "core2"
-  containers:
-  - name: packager-4
-    image: 261443307797.dkr.ecr.ap-south-1.amazonaws.com/bornincloudstreaming-dev:dev_v23
-    imagePullPolicy: Always
-    command: ["/bin/sh", "-c"]
-    args:
-    - echo starting;
-      while true;
-      do
-      sleep 5;
-      python3 6_packager.py;
-      date;
-      done;
-      echo done;
-    resources:
-      requests:
-        cpu: "10000m"
-        memory: "20000Mi"
-      limits:
-        cpu: "15000m"
-        memory: "30000Mi"
-    volumeMounts:
-    - name: cp-media
-      mountPath: /media
-  volumes:
-  - name: cp-media
-    hostPath:
-      path: /mnt/transcodingapi
-  serviceAccountName: compress-job-sa
-
 
 ---
 #Cronjob for deleting completed jobs
