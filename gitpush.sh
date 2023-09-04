@@ -18,4 +18,4 @@ mkdir -p /d/study/BornInCloudStreaming/code-backup/persistent/$1
 cp * -r /d/study/BornInCloudStreaming/code-backup/persistent/$1
 scp 1_copy.py 2_distribute.py 3_splitter.py 4_transcoder.py 5_joining.py 6_packager.py Dockerfile root@10.53.96.239:/home/lab/dockerbuild
 ssh root@10.53.96.239 docker build -t tarunaws/psl:$1 /home/lab/dockerbuild
-ssh root@10.53.96.239 docker push -t tarunaws/psl:$1
+ssh root@10.53.96.239 docker push tarunaws/psl:$1
