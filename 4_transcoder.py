@@ -1,31 +1,70 @@
+"""
+Below program will launch parallel k8s job for transcoding multiple
+bitrate profiles.
+Before starting compression, kindly create AMI of k8s worker with belwo two requirements.
+a) Create local docker repository and store ffmpeg container inside that
+as "localhost:5000/transcodingapi:compress_v0"
+b) Install s3fs and mount folder name "/mnt/transcodingapi" with AWS s3 bucket.
+"""
 #Import Modules
-import os,shutil,datetime,subprocess,json,pymongo,time,yaml,math,uuid
-from kubernetes import client, config, watch
-from kubernetes.client import models as mymodel
-from pymongo import MongoClient
+import os #Interact with Operating system
+import shutil #Use for file copy/paste
+import datetime #working with date command
+import subprocess #Process to be run in background
+import time #Identify time
+import uuid #Generate unique id
+import sys #Better control over input and output
+import random # Generate random numbers
+import json # Handle javascript object notation data
+import yaml # Reading yaml file in python
+import math # Generate random numbers
+import boto3 # Python module to interact with AWS.
+import threading # Enable multitasking, would be use for s3 multipart upload
+from pymongo import MongoClient #Mongo client to interact with mongodb
+from kubernetes import client, config, watch #kubernetes job specific modules
+from kubernetes.client import models as mymodel #kubernetes job specific modules
+from boto3.s3.transfer import TransferConfig #S3 upload specific module
 
 
 #DB Initialization
-db_client = MongoClient("mongodb://db.bornincloudstreaming.com:27017/")
-db = db_client["CoreDB"]
-bitrateLadder = db["bitrateLadder"]
+db_client = MongoClient("mongodb://db.bornincloudstreaming.com:27017/") #DB server address
+db = db_client["CoreDB"] #Database name CoreDB
 transcodeDb = db["transcodeDb"]
+    """Database table name transcodeDb.
+    It is related to transcoding job status
+    """
 frontEndDb = db["frontenddbs"]
+    """Database table name frontenddbs.
+    It is related to job submission by fronend UI
+    """
+bitrateLadder = db["bitrateLadder"]
+    """
+    Database table which store multiple profiles to be use for
+    transcoding.
+    """
 k8sDb = db["k8sDb"]
+    """
+    Database table which store k8s job related metadata.
+    """
 
-
-myPriority = "Urgent"
 # Variable Initialization
-s3Bucket = "/media"
-distributed = os.path.join(s3Bucket,"intermediate","distributed")
-splitPath = os.path.join(s3Bucket,"intermediate","split")
-output = os.path.join(s3Bucket, "output")
-outputSplit=os.path.join(s3Bucket,"intermediate","splitCompress")
-outputComplete = os.path.join(s3Bucket, "output")
-rejected = os.path.join(s3Bucket,"intermediate","rejected")
-localPath = "/video"
-hlsURL =  "https://d3rqc5053sq4hy.cloudfront.net/"
-dashURL = "https://d3rqc5053sq4hy.cloudfront.net/"
+s3Bucket = "/media" #local folder in the container
+distributed = os.path.join(s3Bucket,"intermediate","distributed") #Right hand side is nested folder in S3
+splitPath = os.path.join(s3Bucket,"intermediate","split") #Right hand side is nested folder in S3
+outputDirectoryMultipart = os.path.join("intermediate","split") #Right hand side is nested folder in S3
+splitPathMultipart = "intermediate/split"
+output = os.path.join(s3Bucket, "output") #Right hand side is folder in S3
+outputSplit=os.path.join(s3Bucket,"intermediate","splitCompress") #Right hand side is nested folder in S3
+outputComplete = os.path.join(s3Bucket, "output") #Right hand side is folder in S3
+rejected = os.path.join(s3Bucket,"intermediate","rejected") #Right hand side is nested folder in S3
+tempFile = os.path.join(s3Bucket, "temp", "out.txt") #Right hand side is a temp file under nested folder in S3
+localPath = "/video" #local folder in the container
+localPathDel = "/video" #local folder in the container
+baseLocalPath ="/"
+gopFactor = 2 # Group of pictures
+myPriority = "Urgent"  # Specific to priority que
+hlsURL =  "https://d3rqc5053sq4hy.cloudfront.net/" #Sample HLS url
+dashURL = "https://d3rqc5053sq4hy.cloudfront.net/" # Sample Dash url
 
 # Profile id to profile name mapping
 myProfile = {
@@ -303,13 +342,13 @@ def transcode(jobId,profileId,fileName,trContentId,inputPath,profileName):
     transcodeVerifier = os.listdir(pathProfile)
     return transcodeVerifier
 
-#Zee5 Test :
-def zee5toBeTranscode(jobId,zee5TcontentId,retryCount):
+#psl Test :
+def psltoBeTranscode(jobId,pslTcontentId,retryCount):
     frontEndDb.update_one({"jobId":jobId}, {"$set":{"compress":"started"}})
     transStart = datetime.datetime.now()
     transcodeDb.update_one(
                             {
-                                "contentId":zee5TcontentId
+                                "contentId":pslTcontentId
                             },
                             {
                                 "$set":{
@@ -317,11 +356,11 @@ def zee5toBeTranscode(jobId,zee5TcontentId,retryCount):
                                     "Compression Start":transStart
                                 }
                             })
-    findSplitDuration = k8sDb.find({"contentId":zee5TcontentId})
+    findSplitDuration = k8sDb.find({"contentId":pslTcontentId})
     for value in findSplitDuration:
         splitTimeInSec = value["splitTimeInSec"]
         numberOfChunks = value["numberOfChunks"]
-    results = transcodeDb.find({"contentId": zee5TcontentId})
+    results = transcodeDb.find({"contentId": pslTcontentId})
     for result in results:
         inputCategory = result['inputType']
         fileName = result['revFileName']
@@ -330,88 +369,88 @@ def zee5toBeTranscode(jobId,zee5TcontentId,retryCount):
         for i in range(1, 7):
             profileName = myProfile.get(str(i))
             try:
-                transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             except:
-                transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             else:
-                transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
-            # transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
+            # transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             # if transcodeVerifier == numberOfChunks:
-            #     transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #     transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             # else:
-            #     transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+            #     transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             #     if transcodeVerifier == numberOfChunks:
-            #         transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #         transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             #     else:
-            #         transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+            #         transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             #         if transcodeVerifier == numberOfChunks:
-            #             transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #             transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             #         else:
             #             break
     elif inputCategory == "inputForFullHD":
         for i in range(1, 7):
             profileName = myProfile.get(str(i))
             try:
-                transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             except:
-                transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             else:
-                transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
-            # transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
+            # transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             # if transcodeVerifier == numberOfChunks:
-            #     transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #     transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             # else:
-            #     transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+            #     transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             #     if transcodeVerifier == numberOfChunks:
-            #         transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #         transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             #     else:
-            #         transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+            #         transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             #         if transcodeVerifier == numberOfChunks:
-            #             transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #             transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             #         else:
             #             break
     elif inputCategory == "inputForHalfHD":
         for i in range(1, 7):
             profileName = myProfile.get(str(i))
             try:
-                transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             except:
-                transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             else:
-                transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
-            # transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
+            # transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             # if transcodeVerifier == numberOfChunks:
-            #     transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #     transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             # else:
-            #     transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+            #     transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             #     if transcodeVerifier == numberOfChunks:
-            #         transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #         transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             #     else:
-            #         transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+            #         transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             #         if transcodeVerifier == numberOfChunks:
-            #             transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #             transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             #         else:
             #             break
     elif inputCategory == "inputForBelowHalfHD":
         for i in range(1, 7):
             profileName = myProfile.get(str(i))
             try:
-                transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             except:
-                transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             else:
-                transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
-            # transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+                transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
+            # transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             # if transcodeVerifier == numberOfChunks:
-            #     transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #     transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             # else:
-            #     transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+            #     transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             #     if transcodeVerifier == numberOfChunks:
-            #         transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #         transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             #     else:
-            #         transcodeVerifier = transcode(jobId,i,fileName,zee5TcontentId,inputPath,profileName)
+            #         transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             #         if transcodeVerifier == numberOfChunks:
-            #             transcodeDb.update_one({"contentId":zee5TcontentId}, {"$set":{profileName:"Compress complete"}})
+            #             transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             #         else:
             #             break
     else:
@@ -419,7 +458,7 @@ def zee5toBeTranscode(jobId,zee5TcontentId,retryCount):
     transEnd = datetime.datetime.now()
     transcodeDb.update_one(
                             {
-                                "contentId":zee5TcontentId
+                                "contentId":pslTcontentId
                             },
                             {
                                 "$set":
@@ -430,7 +469,7 @@ def zee5toBeTranscode(jobId,zee5TcontentId,retryCount):
                             })
     time.sleep(1)
 #    shutil.rmtree(inputPath)
-    return zee5TcontentId
+    return pslTcontentId
 
 
 ##Program Start from here
@@ -457,7 +496,7 @@ if flag == "Yes" :
                             })
     #contentIdToBeTranscode = toBeTranscode(contentIdToBeSplit)
     try:
-        zee5contentIdToBeTranscode = zee5toBeTranscode(jobId,myContentId,retryCount)
+        pslcontentIdToBeTranscode = psltoBeTranscode(jobId,myContentId,retryCount)
     except:
         if retryCount < 3:
             retryCount = retryCount + 1
@@ -509,7 +548,7 @@ if flag == "Yes" :
                                     })
     else:
         transcodeDb.update_one({
-                                "contentId":zee5contentIdToBeTranscode
+                                "contentId":pslcontentIdToBeTranscode
                                },
                                {
                                     "$set":{

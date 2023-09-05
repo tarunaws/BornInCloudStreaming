@@ -215,8 +215,8 @@ def mp4fragment(jobId,profileId,frcontentId):
     if originalFileDuration == durationInSec :
         transcodeDb.update_one({
                                 "contentId":frcontentId
-                                }, 
-                                {   
+                                },
+                                {
                                     "$set":{
                                                 profileBitrate:bitrateInMb_print,
                                                 actualProfileDuration:durationInSec,
@@ -239,7 +239,7 @@ def mp4fragment(jobId,profileId,frcontentId):
     else:
         transcodeDb.update_one({
                                     "contentId":frcontentId
-                                }, 
+                                },
                                 {
                                     "$set":{
                                             profileBitrate:bitrateInMb_print,
@@ -247,7 +247,7 @@ def mp4fragment(jobId,profileId,frcontentId):
                                             profileDuration:"Duration Mismatched"
                                             }
                                         }
-                                )  
+                                )
         final = os.path.join(packagePath,b)
         command = f"/bento4/bin/mp4fragment --fragment-duration {deliverySegmentSize} {download_file_path} {final}"
         tempFile = os.path.join(s3Bucket, "temp", "out.txt")
@@ -258,7 +258,7 @@ def mp4fragment(jobId,profileId,frcontentId):
         return frcontentId
 
 
-def zee5toBeFragment(jobId,frContentId):
+def psltoBeFragment(jobId,frContentId):
     frontEndDb.update_one({"jobId":jobId}, {"$set":{"package":"started"}})
     transcodeDb.update_one({"contentId":frContentId}, {"$set":{"Fragment Status":"Started"}})
     results = transcodeDb.find({"contentId":frContentId})
@@ -269,29 +269,29 @@ def zee5toBeFragment(jobId,frContentId):
         for i in range(1, 7):
             status=mp4fragment(jobId,i,frContentId)
             if status == "Retranscode":
-                break     
+                break
     elif inputCategory == "inputForFullHD":
         for i in range(1, 7):
             status=mp4fragment(jobId,i,frContentId)
             if status == "Retranscode":
-                break     
+                break
     elif inputCategory == "inputForHalfHD":
         for i in range(1, 7):
             status=mp4fragment(jobId,i,frContentId)
             if status == "Retranscode":
-                break      
+                break
     else:
         for i in range(1, 7):
             status=mp4fragment(jobId,i,frContentId)
             if status == "Retranscode":
                 break
-            
+
     transcodeDb.update_one({"contentId":frContentId}, {"$set":{"Fragment Status":"Complete"}})
     return frContentId
 
 
 #Function :- Packaging
-def zee5toBePackage(jobId,pkgContentId,hlsURL,dashURL):
+def psltoBePackage(jobId,pkgContentId,hlsURL,dashURL):
     packagingStart = datetime.datetime.now()
     transcodeDb.update_one(
                             {
@@ -340,7 +340,7 @@ def zee5toBePackage(jobId,pkgContentId,hlsURL,dashURL):
     while not os.path.exists(os.path.join(packagePath, "output","video")):
          time.sleep(1)
          time_counter += 1
-         if time_counter > 50:break 
+         if time_counter > 50:break
     for f in glob.glob("*.mp4"):
          os.remove(f)
     os.chdir(outputBasePath)
@@ -437,13 +437,13 @@ if flag == "Yes":
     transcodeDb.update_one({"contentId":myContentId}, {"$set":{"Packaging Require":"In Process"}})
     cleanPod()
     try:
-        zee5mp4Fragment = zee5toBeFragment(jobId,myContentId)
-        zee5Packaging = zee5toBePackage(jobId,zee5mp4Fragment,hlsURL,dashURL)
+        pslmp4Fragment = psltoBeFragment(jobId,myContentId)
+        pslPackaging = psltoBePackage(jobId,pslmp4Fragment,hlsURL,dashURL)
     except:
         if retryCount < 3:
             retryCount = retryCount + 1
             transcodeDb.update_one({
-                                    "contentId":zee5mp4Fragment
+                                    "contentId":pslmp4Fragment
                                     },
                                     {
                                         "$set":{
@@ -455,10 +455,10 @@ if flag == "Yes":
                                         }
                                     })
             transcodeDb.update_one({
-                                "contentId":zee5mp4Fragment
+                                "contentId":pslmp4Fragment
                                     },
                                     {
-                                        "$unset":{       
+                                        "$unset":{
                                             "Packaging Require": ""
                                         }
                                     })
@@ -482,7 +482,7 @@ if flag == "Yes":
                                     {
                                         "$set":{
                                             "status":"Failure , Retry Count 3 Exceeded",
-                                            "Failed Content Id": zee5mp4Fragment,
+                                            "Failed Content Id": pslmp4Fragment,
                                             "failedInStage":"Packaging",
                                             "Error Stage":"Packaging"
 
@@ -490,7 +490,7 @@ if flag == "Yes":
                                     })
             transcodeDb.update_one(
                                     {
-                                        "contentId":zee5mp4Fragment
+                                        "contentId":pslmp4Fragment
                                     },
                                     {
                                         "$set":{

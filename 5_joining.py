@@ -243,12 +243,12 @@ def joinSplitFile(jobId,profileId,jsContentId,timetowait):
     return jsContentId
 
 
-def zee5toBeJoin(jobId,zee5jContentId,timetowait):
+def psltoBeJoin(jobId,psljContentId,timetowait):
     frontEndDb.update_one({"jobId":jobId}, {"$set":{"join":"started"}})
     joinStart = datetime.datetime.now()
     transcodeDb.update_one(
                             {
-                                "contentId":zee5jContentId
+                                "contentId":psljContentId
                             },
                             {
                                 "$set":{
@@ -256,41 +256,41 @@ def zee5toBeJoin(jobId,zee5jContentId,timetowait):
                                     "Joining Start":joinStart
                                     }
                             })
-    findSplitDuration = k8sDb.find({"contentId":zee5jContentId})
+    findSplitDuration = k8sDb.find({"contentId":psljContentId})
     for value in findSplitDuration:
         splitTimeInSec = value["splitTimeInSec"]
-    results = transcodeDb.find({"contentId":zee5jContentId})
+    results = transcodeDb.find({"contentId":psljContentId})
     for result in results:
         inputCategory = result['inputType']
     if inputCategory == "inputFor4k":
-#two times joinSplitFile function is to hold the last profile for some time
+#two times "joinSplitFile" function is to hold the last profile for some time
         for i in range(1, 7):
             if i == 7:
-                status = joinSplitFile(jobId,i,zee5jContentId,timetowait)
+                status = joinSplitFile(jobId,i,psljContentId,timetowait)
                 print(status)
-            joinSplitFile(jobId,i,zee5jContentId,timetowait)
+            joinSplitFile(jobId,i,psljContentId,timetowait)
     elif inputCategory == "inputForFullHD":
         for i in range(1, 7):
             if i == 7:
-                status = joinSplitFile(jobId,i,zee5jContentId,timetowait)
+                status = joinSplitFile(jobId,i,psljContentId,timetowait)
                 print(status)
-            joinSplitFile(jobId,i,zee5jContentId,timetowait)
+            joinSplitFile(jobId,i,psljContentId,timetowait)
     elif inputCategory == "inputForHalfHD":
         for i in range(1, 7):
             if i == 7:
-                status = joinSplitFile(jobId,i,zee5jContentId,timetowait)
+                status = joinSplitFile(jobId,i,psljContentId,timetowait)
                 print(status)
-            joinSplitFile(jobId,i,zee5jContentId,timetowait)
+            joinSplitFile(jobId,i,psljContentId,timetowait)
     else:
         for i in range(1, 7):
             if i == 7:
-                status = joinSplitFile(jobId,i,zee5jContentId,timetowait)
+                status = joinSplitFile(jobId,i,psljContentId,timetowait)
                 print(status)
-            joinSplitFile(jobId,i,zee5jContentId,timetowait)
+            joinSplitFile(jobId,i,psljContentId,timetowait)
     now = datetime.datetime.now()
     transcodeDb.update_one(
                             {
-                                "contentId":zee5jContentId
+                                "contentId":psljContentId
                             },
                             {
                                 "$set":{
@@ -300,8 +300,8 @@ def zee5toBeJoin(jobId,zee5jContentId,timetowait):
                                 }
                             })
     frontEndDb.update_one({"jobId":jobId}, {"$set":{"join":"completed"}})
-    transcodeDb.update_one({"contentId":zee5jContentId}, {"$set":{"Packaging Require":"Yes"}})
-    return zee5jContentId
+    transcodeDb.update_one({"contentId":psljContentId}, {"$set":{"Packaging Require":"Yes"}})
+    return psljContentId
 
 
 ##Program Start from here
@@ -325,7 +325,7 @@ if flag == "Yes" :
 
     try:
         #contentIdtoBeJoin = toBeJoin(contentIdToBeTranscode)
-        zee5contentIdtoBeJoin = zee5toBeJoin(jobId,myContentId,timetowait)
+        pslcontentIdtoBeJoin = psltoBeJoin(jobId,myContentId,timetowait)
     except:
         if retryCount < 3:
             retryCount = retryCount + 1
@@ -341,7 +341,7 @@ if flag == "Yes" :
                                             "retryCount":retryCount
                                         }
                                     })
-            
+
             frontEndDb.update_one(
                                     {
                                         "jobId":jobId
@@ -376,4 +376,4 @@ if flag == "Yes" :
                                         }
                                     })
     else:
-        transcodeDb.update_one({"contentId":zee5contentIdtoBeJoin}, {"$set":{"Packaging Require":"Yes"}})
+        transcodeDb.update_one({"contentId":pslcontentIdtoBeJoin}, {"$set":{"Packaging Require":"Yes"}})
