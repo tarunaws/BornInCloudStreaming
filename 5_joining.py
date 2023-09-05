@@ -1,13 +1,27 @@
+"""
+This program will download transcoded files and join them to
+single file.
+"""
 #Import Modules
-import os,shutil,datetime,subprocess,json,pymongo,time,yaml,math,uuid
-from kubernetes import client, config, watch
-from pymongo import MongoClient
-import sys
-import threading
+import os #Interact with Operating system
+import shutil #Use for file copy/paste
+import datetime #working with date command
+import subprocess #Process to be run in background
+import time #Identify time
+import uuid #Generate unique id
+import sys #Better control over input and output
+import random # Generate random numbers
+import json # Handle javascript object notation data
+import yaml # Reading yaml file in python
+import math # Generate random numbers
+import boto3 # Python module to interact with AWS.
+import threading # Enable multitasking, would be use for s3 multipart upload
+from pymongo import MongoClient #Mongo client to interact with mongodb
+from kubernetes import client, config, watch #kubernetes job specific modules
+from kubernetes.client import models as mymodel #kubernetes job specific modules
+from boto3.s3.transfer import TransferConfig #S3 upload specific module
 
-import boto3
-from boto3.s3.transfer import TransferConfig
-
+#Megabyte to byte conversion 1048576 bytes
 MB = 1024 * 1024
 s3 = boto3.resource('s3')
 
@@ -81,30 +95,44 @@ def upload_with_chunksize_and_meta(local_file_path, bucket_name, object_key,
 bucket_name = "bornincloud-transcoder"
 file_size_mb = 1000
 
-#DB Initialization k8s
-# db_client = MongoClient("mongodb://svc-db:27017/")
-#Centralise DB Initialization
-db_client = MongoClient("mongodb://db.bornincloudstreaming.com:27017/")
-db = db_client["CoreDB"]
-bitrateLadder = db["bitrateLadder"]
-transcodeDb = db["transcodeDb"]
-frontEndDb = db["frontenddbs"]
-k8sDb = db["k8sDb"]
 
-#Core API DB Connction
-coreAPI_client = MongoClient("mongodb://primarydb.bornincloudstreaming.com:27017/")
-coreAPI = db_client["coreAPIStatus"]
-coreAPItranscodeDb = coreAPI["coreAPItranscodeDb"]
+#DB Initialization
+db_client = MongoClient("mongodb://db.bornincloudstreaming.com:27017/") #DB server address
+db = db_client["CoreDB"] #Database name CoreDB
+transcodeDb = db["transcodeDb"]
+    """Database table name transcodeDb.
+    It is related to transcoding job status
+    """
+frontEndDb = db["frontenddbs"]
+    """Database table name frontenddbs.
+    It is related to job submission by fronend UI
+    """
+bitrateLadder = db["bitrateLadder"]
+    """
+    Database table which store multiple profiles to be use for
+    transcoding.
+    """
+k8sDb = db["k8sDb"]
+    """
+    Database table which store k8s job related metadata.
+    """
 
 # Variable Initialization
-s3Bucket = "/media"
-distributed = os.path.join(s3Bucket,"intermediate","distributed")
-splitPath = os.path.join(s3Bucket,"intermediate","split")
-output = os.path.join(s3Bucket, "output")
-outputSplit=os.path.join(s3Bucket,"intermediate","splitCompress")
-outputComplete = output
-rejected = os.path.join(s3Bucket,"intermediate","rejected")
-localPath = "/video"
+s3Bucket = "/media" #local folder in the container
+distributed = os.path.join(s3Bucket,"intermediate","distributed") #Right hand side is nested folder in S3
+splitPath = os.path.join(s3Bucket,"intermediate","split") #Right hand side is nested folder in S3
+outputDirectoryMultipart = os.path.join("intermediate","split") #Right hand side is nested folder in S3
+splitPathMultipart = "intermediate/split"
+output = os.path.join(s3Bucket, "output") #Right hand side is folder in S3
+outputSplit=os.path.join(s3Bucket,"intermediate","splitCompress") #Right hand side is nested folder in S3
+outputComplete = os.path.join(s3Bucket, "output") #Right hand side is folder in S3
+rejected = os.path.join(s3Bucket,"intermediate","rejected") #Right hand side is nested folder in S3
+tempFile = os.path.join(s3Bucket, "temp", "out.txt") #Right hand side is a temp file under nested folder in S3
+localPath = "/video" #local folder in the container
+localPathDel = "/video" #local folder in the container
+baseLocalPath ="/"
+gopFactor = 2 # Group of pictures
+
 
 # Profile id to profile name mapping
 myProfile = {
