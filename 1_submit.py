@@ -56,7 +56,7 @@ def reviseName(each):
         fresult1 = f_str.split(".",2)[1]
         x = datetime.datetime.now() #Example: datetime.datetime(2023, 9, 5, 12, 1, 20, 510559)
         newDateTime = x.strftime("%d") + x.strftime("%b") + x.strftime("%Y") + "T" + x.strftime("%H") + ":" + x.strftime("%M") + ":" + x.strftime("%S")
-         """
+    """
          Example : 05Sep2023T12:02:24
          %d: Extract date
          %b: Extract Month
@@ -65,7 +65,7 @@ def reviseName(each):
          %H: Extract time in hours
          %M: Extract time in minutes
          %S: Extract time in seconds
-         """
+    """
         tmp =  fresult + "_Revise_" + newDateTime + "." + fresult1
         return tmp.replace(" ","")#Remove extra space from final string
     else:
