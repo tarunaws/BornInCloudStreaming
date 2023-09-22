@@ -118,16 +118,16 @@ Database table which store k8s job related metadata.
 """
 
 # Variable Initialization
-s3Bucket = "/media" #local folder in the container
-distributed = os.path.join(s3Bucket,"intermediate","distributed") #Right hand side is nested folder in S3
-splitPath = os.path.join(s3Bucket,"intermediate","split") #Right hand side is nested folder in S3
+psls3Bucket = "/media" #local folder in the container
+distributed = os.path.join(psls3Bucket,"intermediate","distributed") #Right hand side is nested folder in S3
+splitPath = os.path.join(psls3Bucket,"intermediate","split") #Right hand side is nested folder in S3
 outputDirectoryMultipart = os.path.join("intermediate","split") #Right hand side is nested folder in S3
 splitPathMultipart = "intermediate/split"
-output = os.path.join(s3Bucket, "output") #Right hand side is folder in S3
-outputSplit=os.path.join(s3Bucket,"intermediate","splitCompress") #Right hand side is nested folder in S3
-outputComplete = os.path.join(s3Bucket, "output") #Right hand side is folder in S3
-rejected = os.path.join(s3Bucket,"intermediate","rejected") #Right hand side is nested folder in S3
-tempFile = os.path.join(s3Bucket, "temp", "out.txt") #Right hand side is a temp file under nested folder in S3
+output = os.path.join(psls3Bucket, "output") #Right hand side is folder in S3
+outputSplit=os.path.join(psls3Bucket,"intermediate","splitCompress") #Right hand side is nested folder in S3
+outputComplete = os.path.join(psls3Bucket, "output") #Right hand side is folder in S3
+rejected = os.path.join(psls3Bucket,"intermediate","rejected") #Right hand side is nested folder in S3
+tempFile = os.path.join(psls3Bucket, "temp", "out.txt") #Right hand side is a temp file under nested folder in S3
 localPathDel = "/video" #local folder in the container
 baseLocalPath ="/"
 gopFactor = 2 # Group of pictures
@@ -360,7 +360,7 @@ def split(jobId: "jobId associated with video file",
     -segment : Split in multiple segments
     -f : Output format
     """
-    tempFile = os.path.join(s3Bucket, "temp", "out.txt")
+    tempFile = os.path.join(psls3Bucket, "temp", "out.txt")
     with open(tempFile, 'w') as f:
         """
         run ffmpeg command in background.

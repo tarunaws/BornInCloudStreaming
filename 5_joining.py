@@ -118,16 +118,16 @@ Database table which store k8s job related metadata.
 """
 
 # Variable Initialization
-s3Bucket = "/media" #local folder in the container
-distributed = os.path.join(s3Bucket,"intermediate","distributed") #Right hand side is nested folder in S3
-splitPath = os.path.join(s3Bucket,"intermediate","split") #Right hand side is nested folder in S3
+psls3Bucket = "/media" #local folder in the container
+distributed = os.path.join(psls3Bucket,"intermediate","distributed") #Right hand side is nested folder in S3
+splitPath = os.path.join(psls3Bucket,"intermediate","split") #Right hand side is nested folder in S3
 outputDirectoryMultipart = os.path.join("intermediate","split") #Right hand side is nested folder in S3
 splitPathMultipart = "intermediate/split"
-output = os.path.join(s3Bucket, "output") #Right hand side is folder in S3
-outputSplit=os.path.join(s3Bucket,"intermediate","splitCompress") #Right hand side is nested folder in S3
-outputComplete = os.path.join(s3Bucket, "output") #Right hand side is folder in S3
-rejected = os.path.join(s3Bucket,"intermediate","rejected") #Right hand side is nested folder in S3
-tempFile = os.path.join(s3Bucket, "temp", "out.txt") #Right hand side is a temp file under nested folder in S3
+output = os.path.join(psls3Bucket, "output") #Right hand side is folder in S3
+outputSplit=os.path.join(psls3Bucket,"intermediate","splitCompress") #Right hand side is nested folder in S3
+outputComplete = os.path.join(psls3Bucket, "output") #Right hand side is folder in S3
+rejected = os.path.join(psls3Bucket,"intermediate","rejected") #Right hand side is nested folder in S3
+tempFile = os.path.join(psls3Bucket, "temp", "out.txt") #Right hand side is a temp file under nested folder in S3
 localPath = "/video" #local folder in the container
 localPathDel = "/video" #local folder in the container
 baseLocalPath ="/"
@@ -243,7 +243,7 @@ def joinSplitFile(jobId,profileId,jsContentId,timetowait):
     finalFileNameMultipart = os.path.join(outputSinglePathMultiPart,profileName,final)
     txtfinalFileName = os.path.join(outputSinglePath,profileName,"File.txt")
     command = f"ffmpeg -y -f concat -safe 0 -i {joinFile} -c copy {final}"
-    tempFile = os.path.join(s3Bucket, "temp", "out.txt")
+    tempFile = os.path.join(psls3Bucket, "temp", "out.txt")
     with open(tempFile, 'w') as f:
         results = subprocess.Popen(command,stdout = f,stderr = f,shell=True)
     # waitToJoin = k8sDb.find({"contentId":jsContentId})

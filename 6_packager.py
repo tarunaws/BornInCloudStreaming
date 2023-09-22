@@ -126,16 +126,16 @@ ffprobeSleep = 10
 
 
 # Variable Initialization
-s3Bucket = "/media" #local folder in the container
-distributed = os.path.join(s3Bucket,"intermediate","distributed") #Right hand side is nested folder in S3
-splitPath = os.path.join(s3Bucket,"intermediate","split") #Right hand side is nested folder in S3
+psls3Bucket = "/media" #local folder in the container
+distributed = os.path.join(psls3Bucket,"intermediate","distributed") #Right hand side is nested folder in S3
+splitPath = os.path.join(psls3Bucket,"intermediate","split") #Right hand side is nested folder in S3
 outputDirectoryMultipart = os.path.join("intermediate","split") #Right hand side is nested folder in S3
 splitPathMultipart = "intermediate/split"
-output = os.path.join(s3Bucket, "output") #Right hand side is folder in S3
-outputSplit=os.path.join(s3Bucket,"intermediate","splitCompress") #Right hand side is nested folder in S3
-outputComplete = os.path.join(s3Bucket, "output") #Right hand side is folder in S3
-rejected = os.path.join(s3Bucket,"intermediate","rejected") #Right hand side is nested folder in S3
-tempFile = os.path.join(s3Bucket, "temp", "out.txt") #Right hand side is a temp file under nested folder in S3
+output = os.path.join(psls3Bucket, "output") #Right hand side is folder in S3
+outputSplit=os.path.join(psls3Bucket,"intermediate","splitCompress") #Right hand side is nested folder in S3
+outputComplete = os.path.join(psls3Bucket, "output") #Right hand side is folder in S3
+rejected = os.path.join(psls3Bucket,"intermediate","rejected") #Right hand side is nested folder in S3
+tempFile = os.path.join(psls3Bucket, "temp", "out.txt") #Right hand side is a temp file under nested folder in S3
 localPath = "/bento4/bin"
 
 
@@ -255,7 +255,7 @@ def mp4fragment(jobId,profileId,frcontentId):
                                 )
         final = os.path.join(packagePath,b)
         command = f"/bento4/bin/mp4fragment --fragment-duration {deliverySegmentSize} {download_file_path} {final}"
-        tempFile = os.path.join(s3Bucket, "temp", "out.txt")
+        tempFile = os.path.join(psls3Bucket, "temp", "out.txt")
         with open(tempFile, 'w') as f:
             results = subprocess.Popen(command,stdout = f,stderr = f,shell=True)
         time.sleep(5)
@@ -278,7 +278,7 @@ def mp4fragment(jobId,profileId,frcontentId):
                                 )
         final = os.path.join(packagePath,b)
         command = f"/bento4/bin/mp4fragment --fragment-duration {deliverySegmentSize} {download_file_path} {final}"
-        tempFile = os.path.join(s3Bucket, "temp", "out.txt")
+        tempFile = os.path.join(psls3Bucket, "temp", "out.txt")
         with open(tempFile, 'w') as f:
             results = subprocess.Popen(command,stdout = f,stderr = f,shell=True)
         time.sleep(5)
@@ -342,7 +342,7 @@ def psltoBePackage(jobId,pkgContentId,hlsURL,dashURL):
         fileToBePackage = fileToBePackage + " " + each
     os.chdir(packagePath)
     command = f"/bento4/bin/mp4dash --force --hls --use-segment-timeline {fileToBePackage}"
-    tempFile = os.path.join(s3Bucket, "temp", "out.txt")
+    tempFile = os.path.join(psls3Bucket, "temp", "out.txt")
     with open(tempFile, 'w') as f:
         results = subprocess.Popen(command,stdout = f,stderr = f,shell=True)
     results = transcodeDb.find({"contentId":pkgContentId})

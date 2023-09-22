@@ -29,10 +29,10 @@ It is related to job submission by fronend UI
 """
 
 #Variable Initialization
-s3Bucket = "/media" #local folder in the container
-inputFolder = os.path.join(s3Bucket, "input") #Right hand side is folder in S3
-distributed = os.path.join(s3Bucket,"intermediate","distributed") #Right hand side is nested folder in S3
-archive = os.path.join(s3Bucket, "archive") #Right hand side is folder in S3
+psls3Bucket = "/media" #local folder in the container
+inputFolder = os.path.join(psls3Bucket, "input") #Right hand side is folder in S3
+distributed = os.path.join(psls3Bucket,"intermediate","distributed") #Right hand side is nested folder in S3
+archive = os.path.join(psls3Bucket, "archive") #Right hand side is folder in S3
 jobId = "value" #Dummy value
 
 #Content id Generation
