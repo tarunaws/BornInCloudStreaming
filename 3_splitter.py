@@ -353,7 +353,7 @@ def split(jobId: "jobId associated with video file",
     f_str = each
     fresult = f_str.split(".",1)[0]
     extension = f_str.split(".",2)[1]
-    command = f"ffmpeg -i {each} -c copy -segment_time {splitDuration} segment -f {outputname}%03d.{extension}"
+    command = f"ffmpeg -i {each} -c copy -segment_time {splitDuration} -f segment {outputname}%03d.{extension}"
     """
     -c copy : Copy all codecs as available in original i.e video , audio
     -segment_time : Split video in equal duration.
