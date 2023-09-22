@@ -1,7 +1,7 @@
 """
 Below program will capture the detail of newly added file , which
 has been submitted for transcoding
-bucket_name = "bornincloud-transcoder"
+bucket_name = "pslTranscoder"
 """
 
 

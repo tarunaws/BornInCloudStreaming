@@ -151,7 +151,7 @@ def compress_job(command,profileId,cpu,memory):
         )
     volume = client.V1Volume(
       name='bornincloud-media',
-      host_path=client.V1HostPathVolumeSource(path='/mnt/transcodingapi')
+      host_path=client.V1HostPathVolumeSource(path='/mnt/s3Bucket')
       )
     template = client.V1PodTemplateSpec(
         metadata=client.V1ObjectMeta(labels={'name': 'compress'}),
@@ -204,7 +204,7 @@ def compressWait_job(command,profileId,cpu,memory):
         )
     volume = client.V1Volume(
       name='bornincloud-media',
-      host_path=client.V1HostPathVolumeSource(path='/mnt/transcodingapi')
+      host_path=client.V1HostPathVolumeSource(path='/mnt/s3Bucket')
       )
     template = client.V1PodTemplateSpec(
         metadata=client.V1ObjectMeta(labels={'name': 'compress'}),
