@@ -63,8 +63,8 @@ localPathDel = "/video" #local folder in the container
 baseLocalPath ="/"
 gopFactor = 2 # Group of pictures
 myPriority = "Urgent"  # Specific to priority que
-hlsURL =  "https://d3rqc5053sq4hy.cloudfront.net/" #Sample HLS url
-dashURL = "https://d3rqc5053sq4hy.cloudfront.net/" # Sample Dash url
+hlsURL =  "https://d2unj9jgf6tt0e.cloudfront.net/" #Sample HLS url
+dashURL = "https://d2unj9jgf6tt0e.cloudfront.net/" # Sample Dash url
 
 # Profile id to profile name mapping
 myProfile = {
@@ -242,8 +242,8 @@ def transcode(jobId,profileId,fileName,trContentId,inputPath,profileName):
     outputDirectoryName = fresult
   #  a = outputDirectoryName
     a = str(trContentId)
-    hlsURL =  "https://d3rqc5053sq4hy.cloudfront.net/" + str(a) + "/streaming/master.m3u8"
-    dashURL = "https://d3rqc5053sq4hy.cloudfront.net/" + str(a) + "/streaming/stream.mpd"
+    hlsURL =  "https://d2unj9jgf6tt0e.cloudfront.net/" + str(a) + "/streaming/master.m3u8"
+    dashURL = "https://d2unj9jgf6tt0e.cloudfront.net/" + str(a) + "/streaming/stream.mpd"
     os.chdir(outputSplit)
     if not os.path.exists(os.path.join(outputSplit,str(a))):
         os.mkdir(str(a))
