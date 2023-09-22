@@ -184,18 +184,17 @@ def split(jobId: "jobId associated with video file",
     download_with_default_configuration(bucket_name, object_key,download_file_path, file_size_mb)
     time_counter = 0
     while not os.path.exists(download_file_path):
-
-    """
+        """
         Till the time file does not downlaod completly, do ffprobeSleep
         for 1 sec.
-    """
+        """
         time.sleep(1)
         time_counter += 1
         if time_counter > 200:
-        """
+            """
              If download time increase by 200 sec or more than 3 minute
              then break the program and update in database.
-        """
+            """
             transcodeDb.update_one({"contentId":splitContentId}, {"$set":{"Remarks":"Not able to download for splitting"}})
             break
     os.chdir(localContentId)
