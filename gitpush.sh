@@ -18,5 +18,5 @@ mkdir -p /d/pslTranscoder/code-backup/persistent/$1
 cp * -r /d/pslTranscoder/code-backup/persistent/$1
 mkdir -p /d/"OneDrive - Persistent Systems Limited"/product/$1
 cp * -r /d/"OneDrive - Persistent Systems Limited"/product/$1
-scp 1_submit.py 2_contentid.py 3_splitter.py 4_transcoder.py 5_joining.py 6_packager.py Dockerfile root@10.53.96.239:/home/lab/dockerbuild
+scp 1_submit.py 2_contentid.py 3_splitter.py 4_transcoder.py 5_joining.py 6_packager.py encoding_mac_v1.py Dockerfile root@10.53.96.239:/home/lab/dockerbuild
 ssh root@10.53.96.239 "docker build -t tarunaws/psl:$1 /home/lab/dockerbuild && docker push tarunaws/psl:$1"
