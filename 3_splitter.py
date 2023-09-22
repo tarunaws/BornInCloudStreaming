@@ -92,7 +92,7 @@ def upload_with_chunksize_and_meta(local_file_path, bucket_name, object_key,
     return transfer_callback.thread_info
 
 #Bucket name in AWS s3
-bucket_name = "pslTranscoder"
+bucket_name = "psltranscoder"
 #Dummy file size , to calculate transfer speed.
 file_size_mb = 1000
 

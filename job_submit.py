@@ -18,7 +18,7 @@ frontEndDb = db["frontenddbs"]
 
 jobId = str(uuid.uuid4())
 filename = "file1.mp4"
-bucket = "pslTranscoder"
+bucket = "psltranscoder"
 filepath = "/input_video/"
 
 

@@ -92,7 +92,7 @@ def upload_with_chunksize_and_meta(local_file_path, bucket_name, object_key,
         Callback=transfer_callback)
     return transfer_callback.thread_info
 
-bucket_name = "pslTranscoder"
+bucket_name = "psltranscoder"
 file_size_mb = 1000
 
 
