@@ -368,14 +368,15 @@ def split(jobId: "jobId associated with video file",
         results = subprocess.Popen(command,stdout = f,stderr = f,shell=True)
     counter = 0
     while not counter >= numberOfChunks:
+
         """
         Veryfy if ffmpeg has generated same number of chunks , that were expected
         to be generate, or else sleep for 1 sec.
         """
-         time.sleep(1)
-         list = os.listdir(output1)
-         counter = 0
-         for chunk in list:
+        time.sleep(1)
+        list = os.listdir(output1)
+        counter = 0
+        for chunk in list:
             counter = counter + 1
     time.sleep(2)
     for chunk in list:
