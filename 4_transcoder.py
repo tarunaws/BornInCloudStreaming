@@ -141,7 +141,7 @@ def compress_job(command,profileId,cpu,memory):
                      mymodel.V1PodAffinityTerm(
                              label_selector=mymodel.V1LabelSelector(
                                  match_expressions=[
-                                     mymodel.V1LabelSelectorRequirement(key="app", operator="In", values=["core"])
+                                     mymodel.V1LabelSelectorRequirement(key="app", operator="In", values=["core1"])
                             ]
                         ),
                         topology_key="kubernetes.io/hostname"
@@ -194,7 +194,7 @@ def compressWait_job(command,profileId,cpu,memory):
                      mymodel.V1PodAffinityTerm(
                              label_selector=mymodel.V1LabelSelector(
                                  match_expressions=[
-                                     mymodel.V1LabelSelectorRequirement(key="app", operator="In", values=["core"])
+                                     mymodel.V1LabelSelectorRequirement(key="app", operator="In", values=["core1"])
                             ]
                         ),
                         topology_key="kubernetes.io/hostname"
