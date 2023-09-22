@@ -100,22 +100,22 @@ file_size_mb = 1000
 db_client = MongoClient("mongodb://db.bornincloudstreaming.com:27017/") #DB server address
 db = db_client["CoreDB"] #Database name CoreDB
 transcodeDb = db["transcodeDb"]
-    """Database table name transcodeDb.
-    It is related to transcoding job status
-    """
+"""Database table name transcodeDb.
+It is related to transcoding job status.
+"""
 frontEndDb = db["frontenddbs"]
-    """Database table name frontenddbs.
-    It is related to job submission by fronend UI
-    """
+"""Database table name frontenddbs.
+It is related to job submission by fronend UI.
+"""
 bitrateLadder = db["bitrateLadder"]
-    """
-    Database table which store multiple profiles to be use for
-    transcoding.
-    """
+"""
+Database table which store multiple profiles to be use for
+transcoding.
+"""
 k8sDb = db["k8sDb"]
-    """
-    Database table which store k8s job related metadata.
-    """
+"""
+Database table which store k8s job related metadata.
+"""
 
 # Variable Initialization
 s3Bucket = "/media" #local folder in the container

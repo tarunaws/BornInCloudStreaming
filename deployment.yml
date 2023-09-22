@@ -1,8 +1,10 @@
+#This deployment is only for handling small files of 3 minutes.
 #Node label
 #kubectl label nodes ip-10-10-100-239 controlplane=core1
 #kubectl label nodes ip-10-10-100-239 controlplane=core2
 #kubeadm token create --print-join-command --ttl 0
 #vCPU : 16 vCPU RAM 32GB
+#Instance Type :c6a.4xlarge
 ####### Default resource limit ########
 apiVersion: v1
 kind: LimitRange
@@ -66,10 +68,10 @@ metadata:
       app: core
 spec:
   nodeSelector:
-    controlplane: "core"
+    controlplane: "core1"
   containers:
   - name: submit-1
-    image: tarunaws/psl:PSL_v1
+    image: tarunaws/psl:PSL_v2
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -94,7 +96,7 @@ spec:
   volumes:
   - name: cp-media
     hostPath:
-      path: /mnt/transcodingapi
+      path: /mnt/s3bucket
   serviceAccountName: compress-job-sa
 
 ---
@@ -107,10 +109,10 @@ metadata:
      app: core
 spec:
   nodeSelector:
-    controlplane: "core"
+    controlplane: "core1"
   containers:
   - name: contentid-1
-    image: tarunaws/psl:PSL_v1
+    image: tarunaws/psl:PSL_v2
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -135,7 +137,7 @@ spec:
   volumes:
   - name: cp-media
     hostPath:
-      path: /mnt/transcodingapi
+      path: /mnt/s3Bucket
   serviceAccountName: compress-job-sa
 
 ---
@@ -148,10 +150,10 @@ metadata:
      app: core
 spec:
   nodeSelector:
-    controlplane: "core"
+    controlplane: "core1"
   containers:
   - name: splitter-1
-    image: tarunaws/psl:PSL_v1
+    image: tarunaws/psl:PSL_v2
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -165,7 +167,7 @@ spec:
       echo done;
     resources:
       requests:
-        cpu: "4000m"
+        cpu: "3000m"
         memory: "6000Mi"
       limits:
         cpu: "10000m"
@@ -176,7 +178,7 @@ spec:
   volumes:
   - name: cp-media
     hostPath:
-      path: /mnt/transcodingapi
+      path: /mnt/s3bucket
   serviceAccountName: compress-job-sa
 
 ---
@@ -189,10 +191,10 @@ metadata:
      app: core
 spec:
   nodeSelector:
-    controlplane: "core"
+    controlplane: "core1"
   containers:
   - name: transcoder-1
-    image: tarunaws/psl:PSL_v1
+    image: tarunaws/psl:PSL_v2
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -216,7 +218,7 @@ spec:
   volumes:
   - name: cp-media
     hostPath:
-      path: /mnt/transcodingapi
+      path: /mnt/s3Bucket
   serviceAccountName: compress-job-sa
 
 ---
@@ -229,10 +231,10 @@ metadata:
      app: core
 spec:
   nodeSelector:
-    controlplane: "core"
+    controlplane: "core1"
   containers:
   - name: joiner-1
-    image: tarunaws/psl:PSL_v1
+    image: tarunaws/psl:PSL_v2
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -246,7 +248,7 @@ spec:
       echo done;
     resources:
       requests:
-        cpu: "4000m"
+        cpu: "3000m"
         memory: "6000Mi"
       limits:
         cpu: "10000m"
@@ -257,7 +259,7 @@ spec:
   volumes:
   - name: cp-media
     hostPath:
-        path: /mnt/transcodingapi
+        path: /mnt/s3Bucket
   serviceAccountName: compress-job-sa
 
 ---
@@ -270,10 +272,10 @@ metadata:
      app: core
 spec:
   nodeSelector:
-    controlplane: "core"
+    controlplane: "core1"
   containers:
   - name: packager-1
-    image: tarunaws/psl:PSL_v1
+    image: tarunaws/psl:PSL_v2
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -287,7 +289,7 @@ spec:
       echo done;
     resources:
       requests:
-        cpu: "4000m"
+        cpu: "3000m"
         memory: "12000Mi"
       limits:
         cpu: "15000m"
@@ -298,7 +300,7 @@ spec:
   volumes:
   - name: cp-media
     hostPath:
-      path: /mnt/transcodingapi
+      path: /mnt/s3Bucket
   serviceAccountName: compress-job-sa
 
 ---

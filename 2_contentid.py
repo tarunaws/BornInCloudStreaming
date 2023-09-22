@@ -20,13 +20,13 @@ from pymongo import MongoClient #Mongo client to interact with mongodb
 db_client = MongoClient("mongodb://db.bornincloudstreaming.com:27017/") #DB server address
 db = db_client["CoreDB"] #Database name CoreDB
 transcodeDb = db["transcodeDb"]
-    """Database table name transcodeDb.
-    It is related to transcoding job status
-    """
+"""Database table name transcodeDb.
+It is related to transcoding job status
+"""
 frontEndDb = db["frontenddbs"]
-    """Database table name frontenddbs.
-    It is related to job submission by fronend UI
-    """
+"""Database table name frontenddbs.
+It is related to job submission by fronend UI
+"""
 
 #Variable Initialization
 s3Bucket = "/media" #local folder in the container
