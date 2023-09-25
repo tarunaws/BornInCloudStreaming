@@ -23,8 +23,8 @@ transcodeDb = db["transcodeDb"]
 """Database table name transcodeDb.
 It is related to transcoding job status
 """
-frontEndDb = db["frontenddbs"]
-"""Database table name frontenddbs.
+frontEndDb = db["jobDetails"]
+"""Database table name jobDetails.
 It is related to job submission by fronend UI
 """
 

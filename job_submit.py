@@ -6,7 +6,7 @@ import sys
 #DB Initialization
 db_client = MongoClient("mongodb://bornincloudstreaming.com:27777/")
 db = db_client["CoreDB"]
-frontEndDb = db["frontenddbs"]
+frontEndDb = db["jobDetails"]
 
 # def cid():
 # #    data = str(uuid.uuid4())[:6]
@@ -17,12 +17,9 @@ frontEndDb = db["frontenddbs"]
 #     return myContentId
 
 jobId = str(uuid.uuid4())
-filename = "file1.mp4"
+filename = "black_widow_ep1.mp4"
 bucket = "psltranscoder"
 filepath = "/input_video/"
-
-
-
 
 jobDetail = {
     'jobId' : jobId,

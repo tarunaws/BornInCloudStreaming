@@ -33,8 +33,8 @@ transcodeDb = db["transcodeDb"]
 """Database table name transcodeDb.
 It is related to transcoding job status.
 """
-frontEndDb = db["frontenddbs"]
-"""Database table name frontenddbs.
+frontEndDb = db["jobDetails"]
+"""Database table name jobDetails.
 It is related to job submission by fronend UI.
 """
 bitrateLadder = db["bitrateLadder"]
@@ -121,7 +121,7 @@ def compress_job(command,profileId,cpu,memory):
     batch_v1 = client.BatchV1Api()
     container = client.V1Container(
         name="compress",
-        image='localhost:5000/transcodingapi:compress_v0',
+        image='localhost:5000/compress',
         command=["/bin/sh", "-c",command],
         volume_mounts=[client.V1VolumeMount(name="bornincloud-media", mount_path='/media')],
         resources = client.V1ResourceRequirements(
@@ -151,7 +151,7 @@ def compress_job(command,profileId,cpu,memory):
         )
     volume = client.V1Volume(
       name='bornincloud-media',
-      host_path=client.V1HostPathVolumeSource(path='/mnt/s3Bucket')
+      host_path=client.V1HostPathVolumeSource(path='/mnt/s3bucket')
       )
     template = client.V1PodTemplateSpec(
         metadata=client.V1ObjectMeta(labels={'name': 'compress'}),
@@ -174,7 +174,7 @@ def compressWait_job(command,profileId,cpu,memory):
     batch_v1 = client.BatchV1Api()
     container = client.V1Container(
         name="compress",
-        image='localhost:5000/transcodingapi:compress_v0',
+        image='localhost:5000/compress',
         command=["/bin/sh", "-c",command],
         volume_mounts=[client.V1VolumeMount(name="bornincloud-media", mount_path='/media')],
         resources = client.V1ResourceRequirements(
@@ -204,7 +204,7 @@ def compressWait_job(command,profileId,cpu,memory):
         )
     volume = client.V1Volume(
       name='bornincloud-media',
-      host_path=client.V1HostPathVolumeSource(path='/mnt/s3Bucket')
+      host_path=client.V1HostPathVolumeSource(path='/mnt/s3bucket')
       )
     template = client.V1PodTemplateSpec(
         metadata=client.V1ObjectMeta(labels={'name': 'compress'}),
