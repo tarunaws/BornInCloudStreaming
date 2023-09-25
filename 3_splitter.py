@@ -149,7 +149,7 @@ def cleanPod():
     return "/video"
 
 
-#Time taken by ffprobe command to analyse any video file.
+#Time taken by ffprobe command to analyze any video file.
 ffprobeSleep = 20
 
 
@@ -210,7 +210,7 @@ def split(jobId: "jobId associated with video file",
                             "PreQC Start":preQcStart
                             }
                         })
-    frontEndDb.update_one({"jobId":jobId}, {"$set":{"analyse":"inprocess"}})
+    frontEndDb.update_one({"jobId":jobId}, {"$set":{"analyze":"in progress"}})
     #Below command will show all the available video/audio stream from video file, into json format.
     command = f"ffprobe -v error {each}  -show_streams -show_format -print_format json"
     metadata = {}  #Assigning empty dictionary
@@ -329,7 +329,7 @@ def split(jobId: "jobId associated with video file",
                             },
                             {
                                 "$set":{
-                                    "analyse":"completed",
+                                    "analyze":"completed",
                                     "split":"started"
                                     }
                             })

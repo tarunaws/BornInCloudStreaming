@@ -186,7 +186,7 @@ myProfile = {
 
 #Function :- Join
 def joinSplitFile(jobId,profileId,jsContentId,timetowait):
-    frontEndDb.update_one({"jobId":jobId}, {"$set":{"join":"inprocess"}})
+    frontEndDb.update_one({"jobId":jobId}, {"$set":{"join":"in progress"}})
     profileName = myProfile.get(str(profileId))
     results = transcodeDb.find({"contentId":jsContentId})
     for result in results:

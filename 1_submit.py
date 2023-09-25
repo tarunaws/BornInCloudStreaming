@@ -73,7 +73,7 @@ def reviseName(each):
 
 #Program start from here,Check for not started job from frontend DB table.
 frfilename = "null1"
-results = frontEndDb.find({"analyse": "not started"})
+results = frontEndDb.find({"analyze": "not started"})
 for result in results:
     frfilename = result['filename']
     basePath = result["filepath"]
@@ -81,9 +81,9 @@ for result in results:
     jobId = result["jobId"]
     retryCount = result["retryCount"]
 if frfilename != "null1":
-    frontEndDb.update_one({"jobId":jobId}, {"$set":{"analyse":"inprocess"}})
+    frontEndDb.update_one({"jobId":jobId}, {"$set":{"analyze":"in progress"}})
     copyToTranscoderStartTime = datetime.datetime.now()
-    frontEndDb.update_one({"jobId":jobId}, {"$set":{"status":"inprocess"}})
+    frontEndDb.update_one({"jobId":jobId}, {"$set":{"status":"in progress"}})
     #Remove last slash from base path /media/asd/fgg/ to be converted as /media/asd/fgg
     frBasePath = basePath[1:-1]
     download_file_path = os.path.join(inputFolder,frfilename)

@@ -234,7 +234,7 @@ def compressWait_job(command,profileId,cpu,memory):
 
 #Function :-Transcode Function
 def transcode(jobId,profileId,fileName,trContentId,inputPath,profileName):
-    frontEndDb.update_one({"jobId":jobId}, {"$set":{"compress":"inprocess"}})
+    frontEndDb.update_one({"jobId":jobId}, {"$set":{"compress":"in progress"}})
     profileId = profileId
     inputPath = inputPath
     f_str = fileName

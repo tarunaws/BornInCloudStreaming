@@ -78,7 +78,8 @@ if  transcodingStatus == "Not Initiated" :
                             },
                             {
                                 "$set":{
-                                    "analyse":"inprocess",
-                                    "status":"inprocess"
+                                    "analyze":"in progress",
+                                    "status":"in progress"
+
                                 }
                             })

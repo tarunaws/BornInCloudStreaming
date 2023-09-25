@@ -199,7 +199,7 @@ def cleanPod():
 
 #Function :- mp4Fragment
 def mp4fragment(jobId,profileId,frcontentId):
-    frontEndDb.update_one({"jobId":jobId}, {"$set":{"package":"inprocess"}})
+    frontEndDb.update_one({"jobId":jobId}, {"$set":{"package":"in progress"}})
     profileName = myProfile.get(str(profileId))
     results = transcodeDb.find({"contentId":frcontentId})
     for result in results:
@@ -559,7 +559,7 @@ if flag == "Yes":
         #    x1 = str(d14 - d13)
         #Copy to Intermediate
         #    x2 = str(d16 - d15)
-        #Time to Analyse
+        #Time to analyze
         x3 = str(d2 - d1)
         #Time to Split
         x4 = str(d4 - d3)
@@ -579,7 +579,7 @@ if flag == "Yes":
                                     "$set":{
                                         # "Copy To Transcoder":x1,
                                         # "Copy to Intermediate":x2,
-                                        "Time to Analyse":x3,
+                                        "Time to analyze":x3,
                                         "Time to Split":x4,
                                         "Time to Compress":x5,
                                         "Time to Join":x6,
