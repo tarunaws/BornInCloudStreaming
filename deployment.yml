@@ -70,7 +70,7 @@ spec:
     controlplane: "core1"
   containers:
   - name: submit-1
-    image: tarunaws/psl:PSL_v18
+    image: tarunaws/psl:PSL_v19
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -111,7 +111,7 @@ spec:
     controlplane: "core1"
   containers:
   - name: contentid-1
-    image: tarunaws/psl:PSL_v18
+    image: tarunaws/psl:PSL_v19
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -152,7 +152,7 @@ spec:
     controlplane: "core1"
   containers:
   - name: splitter-1
-    image: tarunaws/psl:PSL_v18
+    image: tarunaws/psl:PSL_v19
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -193,7 +193,7 @@ spec:
     controlplane: "core1"
   containers:
   - name: transcoder-1
-    image: tarunaws/psl:PSL_v18
+    image: tarunaws/psl:PSL_v19
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -233,7 +233,7 @@ spec:
     controlplane: "core1"
   containers:
   - name: joiner-1
-    image: tarunaws/psl:PSL_v18
+    image: tarunaws/psl:PSL_v19
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
@@ -274,7 +274,7 @@ spec:
     controlplane: "core1"
   containers:
   - name: packager-1
-    image: tarunaws/psl:PSL_v18
+    image: tarunaws/psl:PSL_v19
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:

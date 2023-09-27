@@ -234,6 +234,7 @@ def split(jobId: "jobId associated with video file",
         splitTimeInSec = 30 * gopFactor # Example : 60 Sec
     else:
         splitTimeInSec = 35 * gopFactor # Example : 70 Sec
+    frontEndDb.update_one({"jobId":jobId}, {"$set":{"analyze":"completed"}})
     durationInMin = str(round(float(durationInSec)/60,2)) + " Minutes"
     sizeInBytes = qc["format"]["size"]
     sizeinGB = str((((float(sizeInBytes)/1024)/1024)/1024)) + " GB"
@@ -330,6 +331,7 @@ def split(jobId: "jobId associated with video file",
                             {
                                 "$set":{
                                     "analyze":"completed",
+                                    "myTest" : "myTest",
                                     "split":"started"
                                     }
                             })

@@ -17,7 +17,7 @@ frontEndDb = db["jobDetails"]
 #     return myContentId
 
 jobId = str(uuid.uuid4())
-filename = "black_widow_ep1.mp4"
+filename = "file2.mp4"
 bucket = "psltranscoder"
 filepath = "/input_video/"
 
@@ -27,6 +27,6 @@ jobDetail = {
     'bucket' : bucket,
     'filepath' : filepath ,
     'retryCount' : 0,
-    'analyse' : "not started"
+    'analyze' : "not started"
     }
 frontEndDb.insert_one(jobDetail)
