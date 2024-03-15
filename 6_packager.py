@@ -110,7 +110,11 @@ frontEndDb = db["jobDetails"]
 """Database table name jobDetails.
 It is related to job submission by fronend UI.
 """
-bitrateLadder = db["bitrateLadder"]
+templateDb = db["templateDetails"]
+"""
+Database table which store profiles template.
+"""
+bitrateLadder = db["profileDetails"]
 """
 Database table which store multiple profiles to be use for
 transcoding.
@@ -138,57 +142,6 @@ rejected = os.path.join(psls3Bucket,"intermediate","rejected") #Right hand side 
 tempFile = os.path.join(psls3Bucket, "temp", "out.txt") #Right hand side is a temp file under nested folder in S3
 localPath = "/bento4/bin"
 
-
-# Profile id to profile name mapping
-myProfile = {
-    "1" : "480p_v1",
-    "2" : "576p_v1",
-    "3" : "720pLow_v1",
-    "4" : "720pHigh_v1",
-    "5" : "1080pLow_v1",
-    "6" : "1080pHigh_v1",
-    "7" : "480p_v2",
-    "8" : "576p_v2",
-    "9" : "720pLow_v2",
-    "10" : "720pHigh_v2",
-    "11" : "1080pLow_v2",
-    "12" : "1080pHigh_v2",
-    "13" : "480p_v3",
-    "14" : "576p_v3",
-    "15" : "720pLow_v3",
-    "16" : "720pHigh_v3",
-    "17" : "1080pLow_v3",
-    "18" : "1080pHigh_v3",
-    "19" : "480p_hevc_v1",
-    "20" : "576p_hevc_v1",
-    "21" : "720pLow_hevc_v1",
-    "22" : "720pHigh_hevc_v1",
-    "23" : "1080pLow_hevc_v1",
-    "24" : "1080pHigh_hevc_v1",
-    "25" : "2k_hevc_v1",
-    "26" : "4k_low_v1",
-    "27" : "4k_high_v1",
-    "28" : "480p_hevc_v2",
-    "29" : "576p_hevc_v2",
-    "30" : "720pLow_hevc_v2",
-    "31" : "720pHigh_hevc_v2",
-    "32" : "1080pLow_hevc_v2",
-    "33" : "1080pHigh_hevc_v2",
-    "34" : "2k_hevc_v2",
-    "35" : "4k_low_v2",
-    "36" : "4k_high_v2",
-    "37" : "480p_hevc_v3",
-    "38" : "576p_hevc_v3",
-    "39" : "720pLow_hevc_v3",
-    "40" : "720pHigh_hevc_v3",
-    "41" : "1080pLow_hevc_v3",
-    "42" : "1080pHigh_hevc_v3",
-    "43" : "2k_hevc_v3",
-    "44" : "4k_low_v3",
-    "45" : "4k_high_v3"
-    }
-
-
 #Function:- clean my pod
 def cleanPod():
     os.chdir(localPath)
@@ -198,9 +151,8 @@ def cleanPod():
             shutil.rmtree(str("package"))
 
 #Function :- mp4Fragment
-def mp4fragment(jobId,profileId,frcontentId):
+def mp4fragment(jobId,profileName,frcontentId):
     frontEndDb.update_one({"jobId":jobId}, {"$set":{"package":"in progress"}})
-    profileName = myProfile.get(str(profileId))
     results = transcodeDb.find({"contentId":frcontentId})
     for result in results:
         outputSinglePath = result["outputSinglePath"]
@@ -291,29 +243,15 @@ def psltoBeFragment(jobId,frContentId):
     transcodeDb.update_one({"contentId":frContentId}, {"$set":{"Fragment Status":"Started"}})
     results = transcodeDb.find({"contentId":frContentId})
     for result in results:
-        inputCategory = result['inputType']
+        template = result['template']
         fileName = result['revFileName']
-    if inputCategory == "inputFor4k":
-        for i in range(1, 7):
-            status=mp4fragment(jobId,i,frContentId)
-            if status == "Retranscode":
-                break
-    elif inputCategory == "inputForFullHD":
-        for i in range(1, 7):
-            status=mp4fragment(jobId,i,frContentId)
-            if status == "Retranscode":
-                break
-    elif inputCategory == "inputForHalfHD":
-        for i in range(1, 7):
-            status=mp4fragment(jobId,i,frContentId)
-            if status == "Retranscode":
-                break
-    else:
-        for i in range(1, 7):
-            status=mp4fragment(jobId,i,frContentId)
-            if status == "Retranscode":
-                break
-
+    results = templateDb.find({"templatename": template})
+    for result in results:
+        profiles = result['profiles']
+    for i in profiles:
+        status=mp4fragment(jobId,i,frContentId)
+        if status == "Retranscode":
+            break
     transcodeDb.update_one({"contentId":frContentId}, {"$set":{"Fragment Status":"Complete"}})
     return frContentId
 

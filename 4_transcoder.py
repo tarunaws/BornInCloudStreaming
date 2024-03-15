@@ -37,7 +37,11 @@ frontEndDb = db["jobDetails"]
 """Database table name jobDetails.
 It is related to job submission by fronend UI.
 """
-bitrateLadder = db["bitrateLadder"]
+templateDb = db["templateDetails"]
+"""
+Database table which store profiles template.
+"""
+bitrateLadder = db["profileDetails"]
 """
 Database table which store multiple profiles to be use for
 transcoding.
@@ -66,57 +70,62 @@ myPriority = "Urgent"  # Specific to priority que
 hlsURL =  "https://d2unj9jgf6tt0e.cloudfront.net/" #Sample HLS url
 dashURL = "https://d2unj9jgf6tt0e.cloudfront.net/" # Sample Dash url
 
-# Profile id to profile name mapping
-myProfile = {
-    "1" : "480p_v1",
-    "2" : "576p_v1",
-    "3" : "720pLow_v1",
-    "4" : "720pHigh_v1",
-    "5" : "1080pLow_v1",
-    "6" : "1080pHigh_v1",
-    "7" : "480p_v2",
-    "8" : "576p_v2",
-    "9" : "720pLow_v2",
-    "10" : "720pHigh_v2",
-    "11" : "1080pLow_v2",
-    "12" : "1080pHigh_v2",
-    "13" : "480p_v3",
-    "14" : "576p_v3",
-    "15" : "720pLow_v3",
-    "16" : "720pHigh_v3",
-    "17" : "1080pLow_v3",
-    "18" : "1080pHigh_v3",
-    "19" : "480p_hevc_v1",
-    "20" : "576p_hevc_v1",
-    "21" : "720pLow_hevc_v1",
-    "22" : "720pHigh_hevc_v1",
-    "23" : "1080pLow_hevc_v1",
-    "24" : "1080pHigh_hevc_v1",
-    "25" : "2k_hevc_v1",
-    "26" : "4k_low_v1",
-    "27" : "4k_high_v1",
-    "28" : "480p_hevc_v2",
-    "29" : "576p_hevc_v2",
-    "30" : "720pLow_hevc_v2",
-    "31" : "720pHigh_hevc_v2",
-    "32" : "1080pLow_hevc_v2",
-    "33" : "1080pHigh_hevc_v2",
-    "34" : "2k_hevc_v2",
-    "35" : "4k_low_v2",
-    "36" : "4k_high_v2",
-    "37" : "480p_hevc_v3",
-    "38" : "576p_hevc_v3",
-    "39" : "720pLow_hevc_v3",
-    "40" : "720pHigh_hevc_v3",
-    "41" : "1080pLow_hevc_v3",
-    "42" : "1080pHigh_hevc_v3",
-    "43" : "2k_hevc_v3",
-    "44" : "4k_low_v3",
-    "45" : "4k_high_v3"
+
+vcodec = {
+    "libx264H.264/AVC/MPEG-4AVC/MPEG-4part10(codech264)" : "libx264",
+    "libaomAV1(codecav1)" : "libaom-av1",
+    "librav1eAV1(codecav1)" : "librav1e",
+    "FLV/SorensonSpark/SorensonH.263(FlashVideo)(codecflv1)" : "flv",
+    "H.261" : "h261",
+    "H.263/H.263-1996" : "h263",
+    "H.263+/H.263-1998/H.263version2" : "h263p",
+    "libx264H.264/AVC/MPEG-4AVC/MPEG-4part10RGB(codech264)" : "libx264rgb",
+    "VideoToolboxH.264Encoder(codech264)" : "h264_videotoolbox",
+    "libx265H.265/HEVC(codechevc)" : "libx265",
+    "VideoToolboxH.265Encoder(codechevc)" : "hevc_videotoolbox",
+    "MPEG-1video" : "mpeg1video",
+    "MPEG-2video" : "libx264",
+    "MPEG-4part2" : "mpeg4",
+    "libxvidcoreMPEG-4part2(codecmpeg4)" : "libxvid",
+    "libvpxVP8(codecvp8)" : "libvpx",
+    "libvpxVP9(codecvp9)" : "libvpx-vp9",
+    "WindowsMediaVideo7" : "wmv1",
+    "WindowsMediaVideo8" : "wmv2"
+    }
+
+acodec = {
+    "AAC (Advanced Audio Coding)" : "aac",
+    "ATSC A/52A (AC-3)" : "ac3",
+    "ATSC A/52A (AC-3) (codec ac3)" : "ac3_fixed",
+    "ADPCM Microsoft" : "adpcm_ms",
+    "ADPCM Shockwave Flash" : "adpcm_swf",
+    "ADPCM Yamaha" : "adpcm_yamaha",
+    "ALAC (Apple Lossless Audio Codec)" : "alac",
+    "alac (AudioToolbox) (codec alac)" : "alac_at",
+    "OpenCORE AMR-NB (Adaptive Multi-Rate Narrow-Band) (codec amr_nb)" : "libopencore_amrnb",
+    "ATSC A/52 E-AC-3" : "eac3",
+    "FLAC (Free Lossless Audio Codec)" : "flac",
+    "MP2 (MPEG audio layer 2)" : "mp2",
+    "MP2 fixed point (MPEG audio layer 2) (codec mp2)" : "mp2fixed",
+    "PCM A-law / G.711 A-law" : "pcm_alaw",
+    "pcm_alaw (AudioToolbox) (codec pcm_alaw)" : "pcm_alaw_at",
+    "PCM signed 16|20|24-bit big-endian for Blu-ray media" : "pcm_bluray",
+    "PCM signed 16|20|24-bit big-endian for DVD media" : "pcm_dvd",
+    "PCM mu-law / G.711 mu-law" : "pcm_mulaw",
+    "pcm_mulaw (AudioToolbox) (codec pcm_mulaw)" : "pcm_mulaw_at",
+    "PCM D-Cinema audio signed 24-bit" : "pcm_s24daud",
+    "RealAudio 1.0 (14.4K) (codec ra_144)" : "real_144",
+    "TrueHD" : "truehd",
+    "TTA (True Audio)" : "tta",
+    "Vorbis" : "vorbis",
+    "libvorbis (codec vorbis)" : "libvorbis",
+    "WavPack" : "wavpack",
+    "Windows Media Audio 1" : "wmav1",
+    "Windows Media Audio 2" : "wmav2"
     }
 
 #Function :- Kubernetes Job for Compress
-def compress_job(command,profileId,cpu,memory):
+def compress_job(command,profileName,cpu,memory,trContentId):
     config.load_incluster_config()
     batch_v1 = client.BatchV1Api()
     container = client.V1Container(
@@ -159,7 +168,7 @@ def compress_job(command,profileId,cpu,memory):
     spec = client.V1JobSpec(template=template)
     data = str(uuid.uuid4())[:5]
     now = int(time.time())
-    job_name = "compress-" + str(profileId) + "-" + str(now) + data
+    job_name = "compress-" + str(profileName) + "-" + str(now) + data
     job = client.V1Job(
         api_version='batch/v1',
         kind='Job',
@@ -169,7 +178,7 @@ def compress_job(command,profileId,cpu,memory):
         body=job,
         namespace='default')
 
-def compressWait_job(command,profileId,cpu,memory):
+def compressWait_job(command,profileName,cpu,memory,trContentId):
     config.load_incluster_config()
     batch_v1 = client.BatchV1Api()
     container = client.V1Container(
@@ -212,7 +221,7 @@ def compressWait_job(command,profileId,cpu,memory):
     spec = client.V1JobSpec(template=template)
     data = str(uuid.uuid4())[:5]
     now = int(time.time())
-    job_name = "compress-" + str(profileId) + "-" + str(now) + data
+    job_name = "compress-" + str(profileName) + "-" + str(now) + data
     job = client.V1Job(
         api_version='batch/v1',
         kind='Job',
@@ -233,14 +242,13 @@ def compressWait_job(command,profileId,cpu,memory):
 
 
 #Function :-Transcode Function
-def transcode(jobId,profileId,fileName,trContentId,inputPath,profileName):
+def transcode(jobId,profileName,fileName,trContentId,inputPath):
     frontEndDb.update_one({"jobId":jobId}, {"$set":{"compress":"in progress"}})
-    profileId = profileId
+    profileName = profileName
     inputPath = inputPath
     f_str = fileName
     fresult = f_str.split(".",1)[0]
     outputDirectoryName = fresult
-  #  a = outputDirectoryName
     a = str(trContentId)
     hlsURL =  "https://d2unj9jgf6tt0e.cloudfront.net/" + str(a) + "/streaming/master.m3u8"
     dashURL = "https://d2unj9jgf6tt0e.cloudfront.net/" + str(a) + "/streaming/stream.mpd"
@@ -270,34 +278,56 @@ def transcode(jobId,profileId,fileName,trContentId,inputPath,profileName):
         noOfChunks = value["numberOfChunks"]
         originalFrameRate = value["originalFrameRate"]
     os.chdir(psls3Bucket)
-    profile = bitrateLadder.find({"profileId":profileId})
-    for option in profile:
-        profileId = option["profileId"]
-        Bitrate = option["Bitrate"]
-        Maxrate = option["Maxrate"]
-        Bufsize = option["Bufsize"]
-        audioBitrate = option["audioBitrate"]
-        Profile = option["Profile"]
-        Level = option["Level"]
-        Preset = option["Preset"]
-        Resolution = option["Resolution"]
-        videoCodec = option["videoCodec"]
-        audioSampleRate = option["audioSampleRate"]
-        audioChannel = option["audioChannel"]
-        audioCodec = option["audioCodec"]
-        videoWidth = option["videoWidth"]
-        videoHeight = option["videoHeight"]
-        videoFramerate = option["videoFramerate"]
-        GOP = option["GOP"]
+    trprofile = bitrateLadder.find({"profileName":profileName})
+    for option in trprofile:
+        profileName = option["profileName"]
+        Bitrate = option["bitrate"]
+        Maxrate = option["maxrate"]
+        Bufsize = option["bufsize"]
+        audioBitrate = option["audiobitrate"]
+        Profile = option["profile"]
+        Level = float(option["level"])
+        Preset = option["preset"]
+        Resolution = option["resolution"]
+        videoCodec = vcodec.get(str(option["videocodec"]))
+        audioSampleRate = int(option["audiosamplerate"])
+        audioChannel = int(option["audiochannel"])
+        audioCodec = acodec.get(str(option["audiocodec"]))
+        x = Resolution.split("*")
+        videoWidth = int(x[0])
+        videoHeight = int(x[1])
+        videoFramerate = float(option["videoframerate"])
+        GOP = int(option["gop"])
     if videoFramerate == "Same as original" or videoFramerate == "same as original" or videoFramerate == "Same As Original":
         calcFrameRate = originalFrameRate
     else :
         calcFrameRate = videoFramerate
-    GOP = GOP * calcFrameRate
-    # if int(videoHeight) < 250:
-    #     calcFrameRate = calcFrameRate / 2
-    #     GOP = GOP * calcFrameRate * 2
-    # GOP = GOP * calcFrameRate
+    GOP = int(GOP * calcFrameRate)
+    transcodeDb.update_one(
+                            {
+                                "contentId":trContentId
+                            },
+                            {
+                                "$set":{
+                                "tr-profileName":profileName,
+                                "tr-Bitrate":Bitrate,
+                                "tr-Maxrate":Maxrate,
+                                "tr-Bufsize":Bufsize,
+                                "tr-audioBitrate":audioBitrate,
+                                "tr-Profile":Profile,
+                                "tr-Level":Level,
+                                "tr-Preset":Preset,
+                                "tr-Resolution":Resolution,
+                                "tr-videoCodec":videoCodec,
+                                "tr-audioSampleRate":audioSampleRate,
+                                "tr-audioChannel":audioChannel,
+                                "tr-audioCodec":audioCodec,
+                                "tr-videoWidth":videoWidth,
+                                "tr-videoHeight":videoHeight,
+                                "tr-videoFramerate":videoFramerate,
+                                "tr-GOP":GOP
+                            }
+                        })
     bitrateNew = Bitrate.replace("k", " ", 1)
     intBitRate = int(bitrateNew)
     if intBitRate <= 500 and videoCodec == "libx264":
@@ -309,6 +339,33 @@ def transcode(jobId,profileId,fileName,trContentId,inputPath,profileName):
     else:
         cpu = "6000m"
         memory = "6000Mi"
+    transcodeDb.update_one(
+                            {
+                                "contentId":trContentId
+                            },
+                            {
+                                "$set":{
+                                "tr-profileName":profileName,
+                                "tr-Bitrate":Bitrate,
+                                "tr-Maxrate":Maxrate,
+                                "tr-Bufsize":Bufsize,
+                                "tr-audioBitrate":audioBitrate,
+                                "tr-Profile":Profile,
+                                "tr-Level":Level,
+                                "tr-Preset":Preset,
+                                "tr-Resolution":Resolution,
+                                "tr-videoCodec":videoCodec,
+                                "tr-audioSampleRate":audioSampleRate,
+                                "tr-audioChannel":audioChannel,
+                                "tr-audioCodec":audioCodec,
+                                "tr-videoWidth":videoWidth,
+                                "tr-videoHeight":videoHeight,
+                                "tr-videoFramerate":videoFramerate,
+                                "tr-GOP":GOP,
+                                "tr-CPU":cpu,
+                                "tr-Memory":memory
+                            }
+                        })
     if os.listdir(inputPath):
         newFiles = os.listdir(inputPath)
         waitJob = 1
@@ -322,9 +379,9 @@ def transcode(jobId,profileId,fileName,trContentId,inputPath,profileName):
             #last chunk is always small, so wait should be added in second last chunk as well. use compress wait to control no of container to be launch at same time
 #           if waitJob == noOfChunks or waitJob == noOfChunks - 1 or waitJob == int(float(noOfChunks/2)):
             if waitJob == noOfChunks:
-                compressWait_job(command,profileId,cpu,memory)
+                compressWait_job(command,profileName,cpu,memory,trContentId)
             else:
-                compress_job(command,profileId,cpu,memory)
+                compress_job(command,profileName,cpu,memory,trContentId)
                 waitJob = waitJob + 1
     transcodeDb.update_one(
                             {
@@ -365,15 +422,27 @@ def psltoBeTranscode(jobId,pslTcontentId,retryCount):
         inputCategory = result['inputType']
         fileName = result['revFileName']
         inputPath = result['splitPath']
-    if inputCategory == "inputFor4k":
-        for i in range(1, 7):
-            profileName = myProfile.get(str(i))
-            try:
-                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            except:
-                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            else:
-                transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
+        template = result['template']
+    results = templateDb.find({"templatename": template})
+    for result in results:
+        profiles = result['profiles']
+    transcodeDb.update_one(
+                            {
+                                "contentId":pslTcontentId
+                            },
+                            {
+                                "$set":{
+                                    "Profiles": profiles
+                                }
+                            })
+    for i in profiles:
+        profileName = i
+        try:
+            transcode(jobId,profileName,fileName,pslTcontentId,inputPath)
+        except:
+            transcode(jobId,profileName,fileName,pslTcontentId,inputPath)
+        else:
+            transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             # transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
             # if transcodeVerifier == numberOfChunks:
             #     transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
@@ -387,74 +456,6 @@ def psltoBeTranscode(jobId,pslTcontentId,retryCount):
             #             transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
             #         else:
             #             break
-    elif inputCategory == "inputForFullHD":
-        for i in range(1, 7):
-            profileName = myProfile.get(str(i))
-            try:
-                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            except:
-                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            else:
-                transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            # transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            # if transcodeVerifier == numberOfChunks:
-            #     transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            # else:
-            #     transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            #     if transcodeVerifier == numberOfChunks:
-            #         transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            #     else:
-            #         transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            #         if transcodeVerifier == numberOfChunks:
-            #             transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            #         else:
-            #             break
-    elif inputCategory == "inputForHalfHD":
-        for i in range(1, 7):
-            profileName = myProfile.get(str(i))
-            try:
-                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            except:
-                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            else:
-                transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            # transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            # if transcodeVerifier == numberOfChunks:
-            #     transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            # else:
-            #     transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            #     if transcodeVerifier == numberOfChunks:
-            #         transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            #     else:
-            #         transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            #         if transcodeVerifier == numberOfChunks:
-            #             transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            #         else:
-            #             break
-    elif inputCategory == "inputForBelowHalfHD":
-        for i in range(1, 7):
-            profileName = myProfile.get(str(i))
-            try:
-                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            except:
-                transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            else:
-                transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            # transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            # if transcodeVerifier == numberOfChunks:
-            #     transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            # else:
-            #     transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            #     if transcodeVerifier == numberOfChunks:
-            #         transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            #     else:
-            #         transcodeVerifier = transcode(jobId,i,fileName,pslTcontentId,inputPath,profileName)
-            #         if transcodeVerifier == numberOfChunks:
-            #             transcodeDb.update_one({"contentId":pslTcontentId}, {"$set":{profileName:"Compress complete"}})
-            #         else:
-            #             break
-    else:
-        print("File Rejected")
     transEnd = datetime.datetime.now()
     transcodeDb.update_one(
                             {
@@ -494,7 +495,6 @@ if flag == "Yes" :
                                     "transcodingStartTime":transcodingStart
                                 }
                             })
-    #contentIdToBeTranscode = toBeTranscode(contentIdToBeSplit)
     try:
         pslcontentIdToBeTranscode = psltoBeTranscode(jobId,myContentId,retryCount)
     except:

@@ -80,6 +80,7 @@ for result in results:
     frBucketName = result["bucket"]
     jobId = result["jobId"]
     retryCount = result["retryCount"]
+    template = result["template"]
 if frfilename != "null1":
     frontEndDb.update_one({"jobId":jobId}, {"$set":{"analyze":"in progress"}})
     copyToTranscoderStartTime = datetime.datetime.now()
@@ -100,6 +101,7 @@ if frfilename != "null1":
         'Splitting Status' : "Not Initiated",
         'object_key' : object_key,
         'bucketName' : frBucketName,
+        'template' : template,
         'retryCount' : retryCount
         }
     transcodeDb.insert_one(listDbMetadata)

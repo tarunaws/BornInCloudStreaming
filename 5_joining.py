@@ -107,7 +107,11 @@ frontEndDb = db["jobDetails"]
 """Database table name jobDetails.
 It is related to job submission by fronend UI
 """
-bitrateLadder = db["bitrateLadder"]
+templateDb = db["templateDetails"]
+"""
+Database table which store profiles template.
+"""
+bitrateLadder = db["profileDetails"]
 """
 Database table which store multiple profiles to be use for
 transcoding.
@@ -134,60 +138,10 @@ baseLocalPath ="/"
 gopFactor = 2 # Group of pictures
 
 
-# Profile id to profile name mapping
-myProfile = {
-    "1" : "480p_v1",
-    "2" : "576p_v1",
-    "3" : "720pLow_v1",
-    "4" : "720pHigh_v1",
-    "5" : "1080pLow_v1",
-    "6" : "1080pHigh_v1",
-    "7" : "480p_v2",
-    "8" : "576p_v2",
-    "9" : "720pLow_v2",
-    "10" : "720pHigh_v2",
-    "11" : "1080pLow_v2",
-    "12" : "1080pHigh_v2",
-    "13" : "480p_v3",
-    "14" : "576p_v3",
-    "15" : "720pLow_v3",
-    "16" : "720pHigh_v3",
-    "17" : "1080pLow_v3",
-    "18" : "1080pHigh_v3",
-    "19" : "480p_hevc_v1",
-    "20" : "576p_hevc_v1",
-    "21" : "720pLow_hevc_v1",
-    "22" : "720pHigh_hevc_v1",
-    "23" : "1080pLow_hevc_v1",
-    "24" : "1080pHigh_hevc_v1",
-    "25" : "2k_hevc_v1",
-    "26" : "4k_low_v1",
-    "27" : "4k_high_v1",
-    "28" : "480p_hevc_v2",
-    "29" : "576p_hevc_v2",
-    "30" : "720pLow_hevc_v2",
-    "31" : "720pHigh_hevc_v2",
-    "32" : "1080pLow_hevc_v2",
-    "33" : "1080pHigh_hevc_v2",
-    "34" : "2k_hevc_v2",
-    "35" : "4k_low_v2",
-    "36" : "4k_high_v2",
-    "37" : "480p_hevc_v3",
-    "38" : "576p_hevc_v3",
-    "39" : "720pLow_hevc_v3",
-    "40" : "720pHigh_hevc_v3",
-    "41" : "1080pLow_hevc_v3",
-    "42" : "1080pHigh_hevc_v3",
-    "43" : "2k_hevc_v3",
-    "44" : "4k_low_v3",
-    "45" : "4k_high_v3"
-    }
-
-
 #Function :- Join
-def joinSplitFile(jobId,profileId,jsContentId,timetowait):
+def joinSplitFile(jobId,profileName,jsContentId,timetowait):
     frontEndDb.update_one({"jobId":jobId}, {"$set":{"join":"in progress"}})
-    profileName = myProfile.get(str(profileId))
+#    profileName = myProfile.get(str(profileName))
     results = transcodeDb.find({"contentId":jsContentId})
     for result in results:
         outputSplitPath = result["outputSplitPath"]
@@ -207,8 +161,8 @@ def joinSplitFile(jobId,profileId,jsContentId,timetowait):
     if os.path.exists(profileName):
         shutil.rmtree(profileName)
     os.mkdir(profileName)
-    localprofileid = os.path.join(localContentId,profileName)
-    os.chdir(localprofileid)
+    localprofileName = os.path.join(localContentId,profileName)
+    os.chdir(localprofileName)
     fileDst = os.path.join(outputSinglePath,profileName)
     pathProfile = os.path.join(outputSplitPath,profileName)
     joinFiles = os.listdir(pathProfile)
@@ -217,10 +171,10 @@ def joinSplitFile(jobId,profileId,jsContentId,timetowait):
         for file in joinFiles:
             src=os.path.join(pathProfile, file)
             srcMultipart = src.removeprefix('/media/')
-            download_file_path = os.path.join(localprofileid,file)
+            download_file_path = os.path.join(localprofileName,file)
             object_key = srcMultipart
             download_with_default_configuration(bucket_name, object_key,download_file_path, file_size_mb)
-#            shutil.move(src,localprofileid)
+#            shutil.move(src,localprofileName)
             fout.write(file + '\n')
     chunks = list()
     with open (chunkfilename) as fin:
@@ -237,7 +191,7 @@ def joinSplitFile(jobId,profileId,jsContentId,timetowait):
         for result1 in res:
             name = str(result1) + ".mp4"
             f.write("file '%s'\n" %name)
-    joinFile = os.path.join(localprofileid,"File.txt")
+    joinFile = os.path.join(localprofileName,"File.txt")
     final = a + ".mp4"
     finalFileName = os.path.join(outputSinglePath,profileName,final)
     finalFileNameMultipart = os.path.join(outputSinglePathMultiPart,profileName,final)
@@ -254,7 +208,7 @@ def joinSplitFile(jobId,profileId,jsContentId,timetowait):
     time.sleep(timetowait * 2)
     joinSleepTime = timetowait * 2
     k8sDb.update_one({"contentId":jsContentId}, {"$set":{"joinSleepTime(In Min)":joinSleepTime}})
-    local_file_path = os.path.join(localprofileid,final)
+    local_file_path = os.path.join(localprofileName,final)
     object_key = finalFileNameMultipart
     upload_with_chunksize_and_meta(local_file_path, bucket_name,object_key, file_size_mb)
     os.chdir(localPath)
@@ -289,32 +243,15 @@ def psltoBeJoin(jobId,psljContentId,timetowait):
         splitTimeInSec = value["splitTimeInSec"]
     results = transcodeDb.find({"contentId":psljContentId})
     for result in results:
-        inputCategory = result['inputType']
-    if inputCategory == "inputFor4k":
-#two times "joinSplitFile" function is to hold the last profile for some time
-        for i in range(1, 7):
-            if i == 7:
-                status = joinSplitFile(jobId,i,psljContentId,timetowait)
-                print(status)
-            joinSplitFile(jobId,i,psljContentId,timetowait)
-    elif inputCategory == "inputForFullHD":
-        for i in range(1, 7):
-            if i == 7:
-                status = joinSplitFile(jobId,i,psljContentId,timetowait)
-                print(status)
-            joinSplitFile(jobId,i,psljContentId,timetowait)
-    elif inputCategory == "inputForHalfHD":
-        for i in range(1, 7):
-            if i == 7:
-                status = joinSplitFile(jobId,i,psljContentId,timetowait)
-                print(status)
-            joinSplitFile(jobId,i,psljContentId,timetowait)
-    else:
-        for i in range(1, 7):
-            if i == 7:
-                status = joinSplitFile(jobId,i,psljContentId,timetowait)
-                print(status)
-            joinSplitFile(jobId,i,psljContentId,timetowait)
+        template = result['template']
+    results = templateDb.find({"templatename": template})
+    for result in results:
+        profiles = result['profiles']
+    for i in profiles:
+        if i == profiles[-1]:
+            status = joinSplitFile(jobId,i,psljContentId,timetowait)
+            print(status)
+        joinSplitFile(jobId,i,psljContentId,timetowait)
     now = datetime.datetime.now()
     transcodeDb.update_one(
                             {
